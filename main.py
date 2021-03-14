@@ -1,4 +1,5 @@
 import argparse
+import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -31,6 +32,10 @@ opt     = parser.parse_args()
 device  = torch.device("cuda:0" if opt.cuda else "cpu")
 
 if __name__ == '__main__':
+    if not os.path.isdir('./results'):
+        os.mkdir('./results')
+        os.mkdir('./results/fixed_noise')
+        os.mkdir('./results/variable_noise')
 
     # Gather MNIST Dataset    
     train_loader = get_data_loader(opt.batch_size)
