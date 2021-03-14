@@ -43,8 +43,8 @@ def generate_images(epoch, path, fixed_noise, num_test_samples, nsize, netG, dev
         i = k//4
         j = k%4
         ax[i,j].cla()
-        nimg = NormalizeImg(generated_fake_images[k, 0].detach().cpu())
-        ax[i, j].imshow(255.0 - nimg.numpy(), cmap='gray')
+        nimg = 1.0 - NormalizeImg(generated_fake_images[k, 0].detach().cpu()) #reverse black white
+        ax[i, j].imshow(nimg.numpy(), cmap='gray')
 
     label = 'Epoch_{}'.format(epoch+1)
     fig.text(0.5, 0.04, label, ha='center')
