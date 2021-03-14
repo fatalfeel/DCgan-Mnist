@@ -1,5 +1,6 @@
 import torch
 import matplotlib.pyplot as plt
+import torchvision
 from torchvision import datasets, transforms
 import math
 import itertools
@@ -15,6 +16,10 @@ def get_data_loader(batch_size):
     train_dataset   = datasets.MNIST(root='./data/', train=True, transform=transform, download=True)
     train_loader    = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, drop_last=True, **kwargs)
     return train_loader
+
+def NormalizeImg(img):
+    nimg = (img - img.min()) / (img.max() - img.min())
+    return nimg
 
 def generate_images(epoch, path, fixed_noise, num_test_samples, netG, device, use_fixed=False):
     z = torch.randn(num_test_samples, 100, 1, 1, device=device)
@@ -38,7 +43,11 @@ def generate_images(epoch, path, fixed_noise, num_test_samples, netG, device, us
         i = k//4
         j = k%4
         ax[i,j].cla()
-        ax[i,j].imshow(generated_fake_images[k].data.cpu().numpy().reshape(28,28), cmap='Greys')
+        nimg    = NormalizeImg(generated_fake_images[k].detach().cpu())
+        grid    = torchvision.utils.make_grid(nimg)
+        trimg   = grid.numpy().transpose(1, 2, 0)
+        ax[i,j].imshow(trimg)
+
     label = 'Epoch_{}'.format(epoch+1)
     fig.text(0.5, 0.04, label, ha='center')
     fig.suptitle(title)

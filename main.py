@@ -14,12 +14,12 @@ def str2bool(v):
         return False
 
 parser = argparse.ArgumentParser(description='DCGANS MNIST')
-parser.add_argument('--num-epochs', type=int, default=100)
-parser.add_argument('--ndf', type=int, default=16, help='Number of features to be used in Discriminator network')
-parser.add_argument('--ngf', type=int, default=16, help='Number of features to be used in Generator network')
+parser.add_argument('--num-epochs', type=int, default=2000)
+parser.add_argument('--ndf', type=int, default=64, help='Number of features to be used in Discriminator network')
+parser.add_argument('--ngf', type=int, default=64, help='Number of features to be used in Generator network')
 parser.add_argument('--nsize', type=int, default=100, help='Size of the noise')
-parser.add_argument('--d-lr', type=float, default=0.0002, help='Learning rate for the discriminator')
-parser.add_argument('--g-lr', type=float, default=0.0002, help='Learning rate for the generator')
+parser.add_argument('--d-lr', type=float, default=0.0001, help='Learning rate for the discriminator')
+parser.add_argument('--g-lr', type=float, default=0.0001, help='Learning rate for the generator')
 parser.add_argument('--nc', type=int, default=1, help='Number of input channels. Ex: for grayscale images: 1 and RGB images: 3 ')
 parser.add_argument('--batch-size', type=int, default=64, help='Batch size')
 parser.add_argument('--num-test-samples', type=int, default=16, help='Number of samples to visualize')
@@ -45,22 +45,23 @@ if __name__ == '__main__':
     netD = Discriminator(opt.nc, opt.ndf).to(device)
 
     # loss function
-    lossfuncD = nn.BCELoss()
-    lossfuncG = nn.BCELoss()
 
     # optimizers
-    optimizerD = optim.Adam(netD.parameters(), lr=opt.d_lr)
-    optimizerG = optim.Adam(netG.parameters(), lr=opt.g_lr)
+    optimizerD  = optim.Adam(netD.parameters(), lr=opt.d_lr)
+    optimizerG  = optim.Adam(netG.parameters(), lr=opt.g_lr)
+
+    lossfunc    = nn.BCELoss()
 
     netD.train()
     netG.train()
     
     # initialize other variables
     num_batches = len(train_loader)
-    fixed_noise = torch.randn(opt.num_test_samples, 100, 1, 1, device=device)
+    fixed_noise = torch.randn(opt.num_test_samples, opt.nsize).to(device)
+    fixed_noise = fixed_noise.view(opt.num_test_samples, opt.nsize, 1, 1)
 
-    real_label = torch.ones(opt.batch_size, dtype=torch.float32).to(device)
-    fake_label = torch.zeros(opt.batch_size, dtype=torch.float32).to(device)
+    real_label = torch.ones(opt.batch_size,     dtype=torch.float32).to(device)
+    fake_label = torch.zeros(opt.batch_size,    dtype=torch.float32).to(device)
 
     for epoch in range(opt.num_epochs):
         for i, (real_images, mnist_labels) in enumerate(train_loader):
@@ -68,11 +69,12 @@ if __name__ == '__main__':
             #   Training discriminator   #
             ##############################
             real_images     = real_images.to(device)
-            noise           = torch.randn(opt.batch_size, opt.nsize, 1, 1).to(device)
+            noise           = torch.randn(opt.batch_size, opt.nsize).to(device)
+            noise           = noise.view(opt.batch_size, opt.nsize, 1, 1)
             noise_images    = netG(noise)
 
-            lossD_real      = lossfuncD(netD(real_images), real_label)
-            lossD_fake      = lossfuncD(netD(noise_images.detach()), fake_label)
+            lossD_real      = lossfunc(netD(real_images), real_label)
+            lossD_fake      = lossfunc(netD(noise_images.detach()), fake_label)
 
             lossD = lossD_real + lossD_fake
 
@@ -83,7 +85,8 @@ if __name__ == '__main__':
             ##########################
             #   Training generator   #
             ##########################
-            lossG  = lossfuncG(netD(noise_images), real_label)
+            lossG  = lossfunc(netD(noise_images), real_label)
+
             netG.zero_grad()
             lossG.backward()
             optimizerG.step()
