@@ -3,7 +3,7 @@ import torch.nn.functional as F
 
 
 class Discriminator(nn.Module):
-    def __init__(self, nc, ndf):
+    def __init__(self, ndf):
         super(Discriminator, self).__init__()
         self.conv1  = nn.Conv2d(1,          ndf,        4, 2, 1)
         self.relu1  = nn.LeakyReLU(0.2, inplace=True)
@@ -45,7 +45,7 @@ class Discriminator(nn.Module):
         return output.squeeze()
 
 class Generator(nn.Module):
-    def __init__(self, nc, nz, ngf):
+    def __init__(self, nz, ngf):
         super(Generator, self).__init__()
         self.deconv5    = nn.ConvTranspose2d(nz,        ngf * 8,    1, 1, 0)
         self.debn5      = nn.BatchNorm2d(ngf * 8)

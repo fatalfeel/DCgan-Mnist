@@ -41,8 +41,8 @@ if __name__ == '__main__':
     train_loader = get_data_loader(opt.batch_size)
 
     # Define Discriminator and Generator architectures
-    netG = Generator(opt.nc, opt.nsize, opt.ngf).to(device)
-    netD = Discriminator(opt.nc, opt.ndf).to(device)
+    netD = Discriminator(opt.ndf).to(device)
+    netG = Generator(opt.nsize, opt.ngf).to(device)
 
     # loss function
 
