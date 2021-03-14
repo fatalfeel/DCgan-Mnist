@@ -1,12 +1,11 @@
 import torch
 import matplotlib.pyplot as plt
-import torchvision
-from torchvision import datasets, transforms
 import math
 import itertools
 import imageio
 import natsort
 from glob import glob
+from torchvision import datasets, transforms
 
 kwargs = {}
 
@@ -21,17 +20,17 @@ def NormalizeImg(img):
     nimg = (img - img.min()) / (img.max() - img.min())
     return nimg
 
-def generate_images(epoch, path, fixed_noise, num_test_samples, netG, device, use_fixed=False):
-    z = torch.randn(num_test_samples, 100, 1, 1, device=device)
-    size_figure_grid = int(math.sqrt(num_test_samples))
-    title = None
-  
+def generate_images(epoch, path, fixed_noise, num_test_samples, nsize, netG, device, use_fixed=False):
+    title               = ''
+    local_noise         = torch.randn(num_test_samples, nsize, 1, 1, device=device)
+    size_figure_grid    = int(math.sqrt(num_test_samples))
+
     if use_fixed:
         generated_fake_images = netG(fixed_noise)
         path += 'fixed_noise/'
         title = 'Fixed Noise'
     else:
-        generated_fake_images = netG(z)
+        generated_fake_images = netG(local_noise)
         path += 'variable_noise/'
         title = 'Variable Noise'
   
@@ -39,14 +38,13 @@ def generate_images(epoch, path, fixed_noise, num_test_samples, netG, device, us
     for i, j in itertools.product(range(size_figure_grid), range(size_figure_grid)):
         ax[i,j].get_xaxis().set_visible(False)
         ax[i,j].get_yaxis().set_visible(False)
+
     for k in range(num_test_samples):
         i = k//4
         j = k%4
         ax[i,j].cla()
-        nimg    = NormalizeImg(generated_fake_images[k].detach().cpu())
-        grid    = torchvision.utils.make_grid(nimg)
-        trimg   = grid.numpy().transpose(1, 2, 0)
-        ax[i,j].imshow(trimg)
+        nimg = NormalizeImg(generated_fake_images[k, 0].detach().cpu())
+        ax[i, j].imshow(255.0 - nimg.numpy(), cmap='gray')
 
     label = 'Epoch_{}'.format(epoch+1)
     fig.text(0.5, 0.04, label, ha='center')
