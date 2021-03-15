@@ -7,10 +7,9 @@ import natsort
 from glob import glob
 from torchvision import datasets, transforms
 
-kwargs = {}
-
-def get_data_loader(batch_size):
+def get_data_loader(batch_size, cuda):
     # MNIST Dataset
+    kwargs          = {'num_workers': 1, 'pin_memory': True} if cuda else {}
     transform       = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=(0.1307, ), std=(0.3081,))])
     train_dataset   = datasets.MNIST(root='./data/', train=True, transform=transform, download=True)
     train_loader    = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, drop_last=True, **kwargs)

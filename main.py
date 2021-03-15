@@ -7,10 +7,10 @@ import torch.optim as optim
 from networks import Generator, Discriminator
 from utils import get_data_loader, generate_images, save_gif
 
-def str2bool(v):
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+def str2bool(b_str):
+    if b_str.lower() in ('yes', 'true', 't', 'y', '1'):
         return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+    elif b_str.lower() in ('no', 'false', 'f', 'n', '0'):
         return False
 
 parser = argparse.ArgumentParser(description='DCGANS MNIST')
@@ -38,7 +38,7 @@ if __name__ == '__main__':
         os.mkdir('./results/variable_noise')
 
     # Gather MNIST Dataset    
-    train_loader = get_data_loader(opt.batch_size)
+    train_loader = get_data_loader(opt.batch_size, opt.cuda)
 
     # Define Discriminator and Generator architectures
     netD        = Discriminator(opt.ndf).to(device)
