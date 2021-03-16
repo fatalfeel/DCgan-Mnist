@@ -69,10 +69,10 @@ if __name__ == '__main__':
             real_images     = real_images.to(device)
             noise           = torch.randn(opt.batch_size, opt.nsize).to(device)
             noise           = noise.view(opt.batch_size, opt.nsize, 1, 1)
-            noise_images    = netG(noise)
+            fake_images     = netG(noise)
 
             lossD_real      = lossfunc(netD(real_images), one_labels)
-            lossD_fake      = lossfunc(netD(noise_images.detach()), zero_labels)
+            lossD_fake      = lossfunc(netD(fake_images.detach()), zero_labels)
             lossD           = lossD_real + lossD_fake
 
             netD.zero_grad()
@@ -82,8 +82,8 @@ if __name__ == '__main__':
             ##########################
             #   Training generator   #
             ##########################
-            #noise_images    = netG(noise)
-            lossG = lossfunc(netD(noise_images), one_labels)
+            #fake_images    = netG(noise)
+            lossG = lossfunc(netD(fake_images), one_labels)
 
             netG.zero_grad()
             lossG.backward()
