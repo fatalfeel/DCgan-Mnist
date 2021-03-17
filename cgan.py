@@ -1,3 +1,4 @@
+import argparse
 import os
 import numpy as np
 import torch
@@ -7,7 +8,17 @@ import torchvision
 import torchvision.transforms as transforms
 from torchvision.utils import save_image
 
-device 			= torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+def str2bool(b_str):
+    if b_str.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif b_str.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+
+parser = argparse.ArgumentParser(description='CGANS MNIST')
+parser.add_argument('--cuda', default=False, type=str2bool)
+
+opt     		= parser.parse_args()
+device          = torch.device("cuda:0" if opt.cuda else "cpu")
 nsize 			= 100
 batch_size 		= 64
 learning_rate 	= 0.0002
