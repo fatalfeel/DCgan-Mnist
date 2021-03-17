@@ -17,12 +17,12 @@ def str2bool(b_str):
 parser = argparse.ArgumentParser(description='CGANS MNIST')
 parser.add_argument('--cuda', default=False, type=str2bool)
 
-opt     		= parser.parse_args()
+opt             = parser.parse_args()
 device          = torch.device("cuda:0" if opt.cuda else "cpu")
-nsize 			= 100
-batch_size 		= 64
-learning_rate 	= 0.0002
-total_epochs 	= 2000
+nsize           = 100
+batch_size      = 64
+learning_rate   = 0.0002
+total_epochs  	= 2000
 test_samples	= 20
 
 def NormalizeImg(img):
